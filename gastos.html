@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <!-- PWA y Responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#3498db">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo-512.png">
+  
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Control Horario">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gastos - Grupo Decoplac</title>
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: url('fondo.png') repeat;
+      background-size: 300px;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    /* Logo */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 100%;
+      max-width: 300 px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+      display: block;
+    }
+
+    #logo.fallback {
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+    }
+
+    /* Efecto al pasar el ratón */
+    .logo:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    h1, h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    #preview-imagen {
+      max-width: 100%;
+      max-height: 200px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    
+    th {
+      background: #f2f2f2;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .msg {
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .gasto-leido {
+      background-color: #d4edda !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo centrado -->
+  <div class="main-content">
+    <!-- Logo (clic para volver a inicio) -->
+    <div class="header">
+      <a href="index.html">
+        <img src="logo.png" alt="Logo de la Empresa" class="logo" id="logo">
+      </a>
+    </div>
+    
+    <!-- Contenido -->
+    <div class="container">
+      <h2>💰 Gestión de Gastos</h2>
+      
+      <!-- Formulario de PIN -->
+      <div id="form-pin">
+        <p>Introduce tu PIN para acceder a la gestión de gastos:</p>
+        <input type="text" id="pin-gastos" placeholder="PIN (4 dígitos)" maxlength="4" />
+        <button id="btn-acceder-gastos">Acceder</button>
+        <div id="msg-gastos"></div>
+      </div>
+      
+      <!-- Formulario de gastos -->
+      <div id="form-gastos" class="hidden">
+        <h2>Añadir nuevo gasto</h2>
+        <input type="text" id="titulo-gasto" placeholder="Título del gasto *" />
+        <textarea id="concepto-gasto" placeholder="Concepto del gasto *" rows="3"></textarea>
+        
+        <!-- ✅ Campo de importe obligatorio -->
+        <input type="text" 
+               id="importe-gasto" 
+               placeholder="Importe (€) *" 
+               inputmode="decimal"
+               onkeypress="return validarImporte(event)" />
+        
+        <!-- ✅ Ticket obligatorio -->
+        <input type="file" 
+               id="imagen-gasto" 
+               accept="image/*" 
+               capture="environment" 
+               required />
+        <img id="preview-imagen" alt="Vista previa" />
+        
+        <button id="btn-guardar-gasto">💾 Guardar gasto</button>
+        <div id="msg-guardar-gasto"></div>
+      </div>
+      
+      <!-- Historial de gastos -->
+      <div id="historial-gastos" class="hidden">
+        <h2>📋 Tus últimos gastos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Concepto</th>
+              <th>Importe</th>
+              <th>Fecha</th>
+              <th>Imagen</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo-gastos">
+            <tr><td colspan="5">Cargando historial...</td></tr>
+          </tbody>
+        </table>
+        <button id="btn-volver-lista" style="margin-top: 20px; background: #3498db;">Volver a la lista</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  
+  <script>
+    // Inicializar Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyAhp3v6jwxN8nrachWt3m879Ir8_midnbs",
+    authDomain: "gen-lang-client-0317267897.firebaseapp.com",
+    projectId: "gen-lang-client-0317267897",
+    storageBucket: "gen-lang-client-0317267897.firebasestorage.app",
+    messagingSenderId: "952141780593",
+    appId: "1:952141780593:web:72c0f7aada03741958edd0"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    
+    let PIN_ACTUAL = null;
+    
+    // Formatear fecha
+    function formatearFecha(fecha) {
+      if (fecha?.toDate) fecha = fecha.toDate();
+      return new Intl.DateTimeFormat('es-ES', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(fecha);
+    }
+    
+    // ✅ Validación de importe (solo números y decimales)
+    function validarImporte(event) {
+      const char = String.fromCharCode(event.which);
+      // Permitir números, punto decimal, coma decimal y teclas de control
+      if (!/[\d.,]/.test(char) && !event.ctrlKey && !event.metaKey && 
+          event.which !== 8 && event.which !== 46 && event.which !== 37 && event.which !== 39) {
+        event.preventDefault();
+        return false;
+      }
+      return true;
+    }
+    
+    // ✅ Formatear importe al perder foco
+    document.getElementById('importe-gasto').addEventListener('blur', function() {
+      let valor = this.value.replace(/[^0-9.,]/g, '');
+      if (valor) {
+        // Reemplazar comas por puntos para formato estándar
+        valor = valor.replace(',', '.');
+        // Asegurar máximo 2 decimales
+        const partes = valor.split('.');
+        if (partes.length > 1) {
+          valor = partes[0] + '.' + partes[1].substring(0, 2);
+        }
+        this.value = parseFloat(valor).toFixed(2);
+      }
+    });
+    
+    // Verificar PIN
+    async function verificarPin() {
+      const pin = document.getElementById('pin-gastos').value.trim();
+      const msgDiv = document.getElementById('msg-gastos');
+      
+      if (!pin || pin.length !== 4 || isNaN(pin)) {
+        msgDiv.textContent = '⚠️ Introduce un PIN válido de 4 dígitos';
+        msgDiv.className = 'msg error';
+        return;
+      }
+      
+      try {
+        msgDiv.textContent = '🔍 Verificando PIN...';
+        msgDiv.className = 'msg success';
+        
+        const trabajadorSnapshot = await db.collection('trabajadores')
+          .where('pin', '==', pin)
+          .limit(1)
+          .get();
+          
+        if (trabajadorSnapshot.empty) {
+          throw new Error('PIN no válido');
+        }
+        
+        PIN_ACTUAL = pin;
+        document.getElementById('form-pin').classList.add('hidden');
+        document.getElementById('form-gastos').classList.remove('hidden');
+        msgDiv.textContent = '';
+        
+      } catch (err) {
+        console.error("Error al verificar PIN:", err);
+        msgDiv.textContent = '❌ ' + (err.message === 'PIN no válido' ? 'PIN no válido' : 'Error al verificar PIN');
+        msgDiv.className = 'msg error';
+      }
+    }
+    
+    // Vista previa de imagen
+    document.getElementById('imagen-gasto').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('preview-imagen').src = event.target.result;
+          document.getElementById('preview-imagen').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // ✅ Guardar gasto con validación completa
+    async function guardarGasto() {
+      const titulo = document.getElementById('titulo-gasto').value.trim();
+      const concepto = document.getElementById('concepto-gasto').value.trim();
+      const importe = document.getElementById('importe-gasto').value.trim();
+      const imagenFile = document.getElementById('imagen-gasto').files[0];
+      const msgDiv = document.getElementById('msg-guardar-gasto');
+      
+      // ✅ Validación obligatoria
+      if (!titulo || !concepto || !importe || !imagenFile) {
+        msgDiv.textContent = '⚠️ Todos los campos son obligatorios (título, concepto, importe y ticket)';
+        msgDiv.className = 'msg error';
+        return;
+      }
+      
+      // ✅ Validar que el importe sea un número válido
+      const importeNumerico = parseFloat(importe.replace(',', '.'));
+      if (isNaN(importeNumerico) || importeNumerico <= 0) {
+        msgDiv.textContent = '⚠️ El importe debe ser un número válido mayor que 0';
+        msgDiv.className = 'msg error';
+        return;
+      }
+      
+      try {
+        msgDiv.textContent = '💾 Guardando gasto...';
+        msgDiv.className = 'msg success';
+        
+        let imageUrl = null;
+        if (imagenFile) {
+          // Subir imagen a Storage
+          const storageRef = storage.ref();
+          const imagenRef = storageRef.child(`gastos/${PIN_ACTUAL}/${Date.now()}_${imagenFile.name}`);
+          const snapshot = await imagenRef.put(imagenFile);
+          imageUrl = await snapshot.ref.getDownloadURL();
+        }
+        
+        // Guardar en Firestore
+        await db.collection('gastos_trabajadores').add({
+          pinTrabajador: PIN_ACTUAL,
+          titulo: titulo,
+          concepto: concepto,
+          importe: importeNumerico, // ✅ Guardar como número
+          importeTexto: importe,    // ✅ Guardar como texto formateado
+          imagenUrl: imageUrl,
+          fechaRegistro: firebase.firestore.FieldValue.serverTimestamp(),
+          leido: false,
+          timestamp: Date.now()
+        });
+        
+        // Limpiar formulario
+        document.getElementById('titulo-gasto').value = '';
+        document.getElementById('concepto-gasto').value = '';
+        document.getElementById('importe-gasto').value = '';
+        document.getElementById('imagen-gasto').value = '';
+        document.getElementById('preview-imagen').style.display = 'none';
+        
+        msgDiv.textContent = '✅ Gasto guardado correctamente';
+        msgDiv.className = 'success';
+        
+        // Mostrar historial después de 2 segundos
+        setTimeout(() => {
+          cargarHistorialGastos();
+        }, 2000);
+        
+      } catch (err) {
+        console.error("Error al guardar gasto:", err);
+        msgDiv.textContent = '❌ Error al guardar: ' + err.message;
+        msgDiv.className = 'msg error';
+      }
+    }
+    
+    // Cargar historial de gastos
+    async function cargarHistorialGastos() {
+      try {
+        const snapshot = await db.collection('gastos_trabajadores')
+          .where('pinTrabajador', '==', PIN_ACTUAL)
+          .orderBy('fechaRegistro', 'desc')
+          .limit(10)
+          .get();
+        
+        const tbody = document.getElementById('cuerpo-gastos');
+        
+        if (snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="5">No tienes gastos registrados</td></tr>';
+        } else {
+          let filas = '';
+          snapshot.forEach(doc => {
+            const g = doc.data();
+            const fecha = g.fechaRegistro?.toDate ? formatearFecha(g.fechaRegistro) : 'Sin fecha';
+            
+            // Formatear importe para mostrar
+            const importeFormateado = g.importe ? 
+              new Intl.NumberFormat('es-ES', { 
+                style: 'currency', 
+                currency: 'EUR',
+                minimumFractionDigits: 2
+              }).format(g.importe) : 'N/A';
+            
+            filas += `
+              <tr ${g.leido ? 'class="gasto-leido"' : ''}>
+                <td><strong>${g.titulo}</strong></td>
+                <td>${g.concepto.substring(0, 30)}${g.concepto.length > 30 ? '...' : ''}</td>
+                <td>${importeFormateado}</td>
+                <td>${fecha}</td>
+                <td>
+                  ${g.imagenUrl ? 
+                    `<a href="${g.imagenUrl}" target="_blank" style="color: #3498db;">📸 Ver</a>` : 
+                    '-'}
+                </td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = filas;
+        }
+        
+        document.getElementById('form-gastos').classList.add('hidden');
+        document.getElementById('historial-gastos').classList.remove('hidden');
+        
+      } catch (err) {
+        console.error("Error al cargar historial:", err);
+        document.getElementById('cuerpo-gastos').innerHTML = '<tr><td colspan="5">Error al cargar historial</td></tr>';
+      }
+    }
+    
+    // Eventos
+    document.getElementById('btn-acceder-gastos').addEventListener('click', verificarPin);
+    document.getElementById('btn-guardar-gasto').addEventListener('click', guardarGasto);
+    document.getElementById('btn-volver-lista').addEventListener('click', () => {
+      document.getElementById('historial-gastos').classList.add('hidden');
+      document.getElementById('form-gastos').classList.remove('hidden');
+    });
+    
+    // Permitir Enter en campos
+    document.getElementById('pin-gastos').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verificarPin();
+    });
+    
+    document.getElementById('titulo-gasto').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') guardarGasto();
+    });
+    
+    // Fallback para logo
+    document.getElementById('logo').onerror = function() {
+      this.classList.add('fallback');
+      this.textContent = 'LC';
+    };
+  </script>
+</body>
+</html>

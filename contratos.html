@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#2c3e50">
+  <meta name="description" content="Sistema de control Grupo Decoplac">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo-512.png">
+  
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Control Horario">
+  
+  <title>Mis Contratos - Grupo Decoplac</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: url('fondo.png') repeat;
+      background-size: 300px;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Logo */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 100%;
+      max-width: 300 px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+      display: block;
+    }
+
+    #logo.fallback {
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+    }
+
+    /* Efecto al pasar el ratón */
+    .logo:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    #mensaje {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+
+    /* Lista de contratos */
+    #contratos-container {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .contrato-item {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .contrato-info {
+      text-align: left;
+    }
+
+    .contrato-nombre {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+
+    .contrato-fecha {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .contrato-link {
+      background: #2ecc71;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .contrato-link:hover {
+      background: #27ae60;
+      transform: translateY(-1px);
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .logo {
+        max-width: 300px;
+        margin-bottom: 40px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      input, button {
+        padding: 14px;
+        font-size: 16px;
+      }
+      
+      .contrato-item {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      
+      .contrato-link {
+        width: 100%;
+        display: inline-block;
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 320px) {
+      input, button {
+        padding: 12px;
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+
+<!-- ✅ Sistema de actualización automática -->
+<script>
+  // Añadir timestamp a todas las URLs de scripts y estilos
+  document.addEventListener('DOMContentLoaded', () => {
+    const timestamp = Date.now();
+    
+    // Actualizar scripts
+    document.querySelectorAll('script[src]').forEach(script => {
+      if (!script.src.includes('?v=')) {
+        script.src = script.src + '?v=' + timestamp;
+      }
+    });
+    
+    // Actualizar estilos (si tienes CSS externos)
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+      if (!link.href.includes('?v=')) {
+        link.href = link.href + '?v=' + timestamp;
+      }
+    });
+  });
+</script>
+
+</head>
+<body>
+  <!-- Logo centrado -->
+  <div class="main-content">
+    <!-- Logo (clic para volver a inicio) -->
+    <div class="header">
+      <a href="index.html">
+        <img src="logo.png" alt="Logo de la Empresa" class="logo" id="logo">
+      </a>
+    </div>
+
+    <!-- Contenido con fondo blanco -->
+    <div class="container">
+      <h2>📑 Mis Contratos Laborales</h2>
+      <p></p>
+      
+    <div id="formulario">
+      <input type="number" id="pin-trabajador" placeholder="Introduce tu PIN (4 dígitos)" min="1000" max="9999" />
+      <button id="ver-contratos">🔍 Ver mis contratos</button>
+      <div id="mensaje"></div>
+    </div>
+
+    <div id="contratos-container">
+      <h3>Tus contratos disponibles</h3>
+      <div id="lista-contratos"></div>
+    </div>
+  </div>
+</div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('SW registrado:', registration);
+          })
+          .catch((error) => {
+            console.log('Error al registrar SW:', error);
+          });
+      });
+    }
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyAhp3v6jwxN8nrachWt3m879Ir8_midnbs",
+    authDomain: "gen-lang-client-0317267897.firebaseapp.com",
+    projectId: "gen-lang-client-0317267897",
+    storageBucket: "gen-lang-client-0317267897.firebasestorage.app",
+    messagingSenderId: "952141780593",
+    appId: "1:952141780593:web:72c0f7aada03741958edd0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let TRABAJADORES = {};
+
+    // Cargar lista de trabajadores
+    async function cargarTrabajadores() {
+      try {
+        const snapshot = await db.collection('trabajadores').get();
+        const mapa = {};
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.pin && data.nombre) {
+            mapa[data.pin] = data.nombre;
+          }
+        });
+        TRABAJADORES = mapa;
+      } catch (err) {
+        console.error("Error al cargar trabajadores:", err);
+      }
+    }
+
+    // Mostrar mensaje
+    function mostrarMensaje(texto, tipo = 'success') {
+      const msg = document.getElementById('mensaje');
+      msg.textContent = texto;
+      msg.className = tipo;
+      msg.style.display = 'block';
+    }
+
+    // Formatear fecha
+    function formatearFecha(fecha) {
+      if (fecha?.toDate) fecha = fecha.toDate();
+      return new Intl.DateTimeFormat('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(fecha);
+    }
+
+    // Cargar contratos del trabajador
+    async function cargarContratos(pin) {
+      if (!TRABAJADORES[pin]) {
+        mostrarMensaje('⚠️ PIN no válido', 'error');
+        return;
+      }
+
+      try {
+        const snapshot = await db.collection('contratos_trabajadores')
+          .where('pinTrabajador', '==', pin)
+          .orderBy('fechaSubida', 'desc')
+          .get();
+
+        const contenedor = document.getElementById('lista-contratos');
+        const container = document.getElementById('contratos-container');
+        
+        if (snapshot.empty) {
+          contenedor.innerHTML = '<p style="padding: 20px; color: #7f8c8d;">No tienes contratos disponibles</p>';
+          container.style.display = 'block';
+          document.getElementById('formulario').style.display = 'none';
+        } else {
+          let html = '';
+          snapshot.forEach(doc => {
+            const contrato = doc.data();
+            const nombreArchivo = contrato.nombreArchivo || 'Contrato sin nombre';
+            const url = contrato.url || '#';
+            const fecha = contrato.fechaSubida ? formatearFecha(contrato.fechaSubida) : 'Sin fecha';
+            
+            html += `
+              <div class="contrato-item">
+                <div class="contrato-info">
+                  <div class="contrato-nombre">${nombreArchivo}</div>
+                  <div class="contrato-fecha">Subido: ${fecha}</div>
+                </div>
+                <a href="${url}" target="_blank" class="contrato-link">📄 Ver PDF</a>
+              </div>
+            `;
+          });
+          contenedor.innerHTML = html;
+          container.style.display = 'block';
+          document.getElementById('formulario').style.display = 'none';
+        }
+      } catch (err) {
+        console.error("Error al cargar contratos:", err);
+        mostrarMensaje('❌ Error al cargar contratos', 'error');
+      }
+    }
+
+    // Evento del botón
+    document.getElementById('ver-contratos').addEventListener('click', () => {
+      const pinInput = document.getElementById('pin-trabajador');
+      const pin = pinInput.value.trim();
+      
+      if (!pin || pin.length !== 4 || isNaN(pin)) {
+        mostrarMensaje('⚠️ Introduce un PIN válido de 4 dígitos', 'error');
+        return;
+      }
+      
+      cargarContratos(pin);
+    });
+
+    // Inicializar
+    cargarTrabajadores();
+
+    // Fallback para logo
+    document.getElementById('logo').onerror = function() {
+      this.src = '';
+      this.alt = 'LOGO';
+      this.style.backgroundColor = '#2c3e50';
+      this.style.color = 'white';
+      this.style.display = 'flex';
+      this.style.alignItems = 'center';
+      this.style.justifyContent = 'center';
+      this.style.fontSize = '60px';
+      this.style.fontWeight = 'bold';
+      this.style.borderRadius = '16px';
+      this.style.boxShadow = '0 6px 25px rgba(0,0,0,0.15)';
+      this.textContent = 'LC';
+    };
+  </script>
+</body>
+</html>

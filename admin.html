@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- PWA y Responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#3498db">
+  <link rel="manifest" href="manifest2.json">
+  <link rel="apple-touch-icon" href="logo-admin.png">
+  
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="logo-admin.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo-admin-512.png">
+  
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Control Horario">
+  
+  <meta charset="UTF-8" />
+  <title>Administrador - Grupo Decoplac</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: url('fondo.png') repeat;
+      background-size: 300px;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    /* Logo */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+      display: block;
+    }
+    
+    #logo.fallback {
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+    }
+    
+    /* Efecto al pasar el ratón */
+    .logo:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    h2, h3 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    
+    input, button, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    #logout {
+      background: #e74c3c;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    th {
+      background: #f2f2f2;
+    }
+    
+    #datos, #login, #tab-registros, #tab-trabajadores, #tab-pines, #tab-vehiculos, #tab-contratos, #tab-estadisticas, #tab-notificaciones {
+      margin-top: 20px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      background: #bdc3c7;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .tab-btn.active {
+      background: #3498db;
+      color: white;
+    }
+    
+    /* ✅ Estilo para pestañas deshabilitadas */
+    .tab-btn.disabled {
+      background: #bdc3c7 !important;
+      color: #95a5a6 !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+      position: relative;
+    }
+    
+    .tab-btn.disabled:hover {
+      background: #bdc3c7 !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    
+    .info-icon {
+      margin-left: 8px;
+      font-size: 14px;
+      cursor: help;
+    }
+    
+    .info-icon:hover {
+      color: #3498db;
+    }
+    
+    .msg {
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .btn-usar-pin {
+      background: #2ecc71;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    
+    .btn-borrar-todo {
+      background: #e74c3c;
+      margin-top: 15px;
+    }
+    
+    /* Estilo para campo obligatorio */
+    input.error {
+      border: 2px solid #e74c3c !important;
+      background-color: #fdf2f2;
+    }
+    
+    /* ✅ Estilo específico para reset automático - 100% responsive */
+    .reset-controls {
+      margin: 15px 0;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .reset-label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .reset-options {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .reset-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 70px;
+      padding: 6px 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .reset-option:hover {
+      border-color: #3498db;
+      background: #f0f8ff;
+    }
+    
+    .reset-option input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+    
+    /* ✅ Responsive para móviles muy pequeños */
+    @media (max-width: 360px) {
+      .reset-option {
+        min-width: 60px;
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+      
+      .reset-option input {
+        width: 14px;
+        height: 14px;
+      }
+      
+      .reset-label {
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+    }
+    
+    /* ✅ Responsive mejorado */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .container {
+        padding: 20px;
+      }
+      
+      input, button, select {
+        padding: 10px;
+        font-size: 14px;
+      }
+      
+      table {
+        font-size: 12px;
+      }
+      
+      th, td {
+        padding: 8px;
+      }
+      
+      .tabs {
+        gap: 5px;
+      }
+      
+      .tab-btn {
+        padding: 8px 0;
+        font-size: 12px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      h2, h3 {
+        font-size: 18px;
+      }
+      
+      input, button, select {
+        padding: 8px;
+        font-size: 12px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="main-content">
+    <!-- Logo -->
+    <div class="header">
+      <img src="logo-admin.png" alt="Logo de la Empresa" class="logo" id="logo">
+    </div>
+    
+    <!-- Contenido -->
+    <div class="container">
+      <h2>Panel de Administración</h2>
+      
+      <!-- Login -->
+      <div id="login">
+        <p>Inicia sesión para acceder.</p>
+        <input type="email" id="email" placeholder="Tu email" />
+        <input type="password" id="password" placeholder="Contraseña" />
+        <button id="btn-login">🔐 Iniciar sesión</button>
+        <div id="msg-login"></div>
+      </div>
+      
+      <!-- Panel principal -->
+      <div id="datos" class="hidden">
+        <p>Bienvenido, <span id="user-email"></span> | <button id="logout">Cerrar sesión</button></p>
+        
+        <!-- Pestañas (generadas dinámicamente) -->
+        <div class="tabs" id="pestanas-container">
+          <!-- Las pestañas se generarán aquí automáticamente -->
+        </div>
+        
+        <!-- Registros -->
+        <div id="tab-registros" class="hidden">
+          <h3>📝 Registros</h3>
+          <button id="cargar">↻ Cargar registros</button>
+          <button id="borrar-registros">🗑️ Borrar todos los registros</button>
+          <button id="exportar">📥 Exportar a Excel</button>
+          <table>
+            <thead><tr><th>Nombre</th><th>Tipo</th><th>Fecha y Hora</th><th>Comentario</th></tr></thead>
+            <tbody id="tabla-cuerpo"></tbody>
+          </table>
+        </div>
+        
+        <!-- Trabajadores -->
+        <div id="tab-trabajadores" class="hidden">
+          <h3>👷 Gestión de Trabajadores</h3>
+          
+          <!-- ✅ CAMPO SECRETO PARA SUPERADMIN -->
+          <input type="text" id="superadmin-trigger" 
+                 placeholder="Código secreto..." 
+                 style="display: none; margin-bottom: 10px;" />
+          
+          <input type="text" id="nuevo-pin" placeholder="PIN (4 dígitos)" maxlength="4" />
+          <button id="btn-generar-pin">🎲 Generar PIN aleatorio</button>
+          <input type="text" id="nuevo-nombre" placeholder="Nombre completo" />
+          <button id="btn-agregar">➕ Añadir trabajador</button>
+          <select id="orden-trabajadores">
+            <option value="pin">Ordenar por PIN</option>
+            <option value="nombre">Ordenar por nombre</option>
+            <option value="registro">Ordenar por fecha de registro</option>
+          </select>
+          <div id="msg-trabajadores"></div>
+          <table id="tabla-trabajadores">
+            <thead><tr><th>PIN</th><th>Nombre</th><th>Acción</th></tr></thead>
+            <tbody id="cuerpo-trabajadores"></tbody>
+          </table>
+        </div>
+        
+        <!-- PINs de acceso -->
+        <div id="tab-pines" class="hidden">
+          <h3>🔐 PINs de Acceso</h3>
+          <button id="generar-pin" style="margin-bottom: 15px;">🔄 Generar nuevo PIN</button>
+          <input type="text" id="comentario-pin" placeholder="Comentario obligatorio (ej: Obra Norte)" style="margin-bottom: 15px;" />
+          <div id="msg-pin"></div>
+          
+          <!-- Generador de URL -->
+          <div style="margin-top: 15px;">
+            <h4>🔗 Enlace de acceso</h4>
+            <input type="text" id="url-acceso" placeholder="URL se generará aquí" readonly style="margin-bottom: 10px;" />
+            <button id="generar-url">📋 Copiar enlace</button>
+          </div>
+          
+          <h4 style="margin-top: 20px;">Lista de PINs</h4>
+          <table id="tabla-pines">
+            <thead>
+              <tr>
+                <th>PIN</th>
+                <th>Fecha</th>
+                <th>Comentario</th>
+                <th>Estado</th>
+                <th>Acción</th>
+                <th>Eliminar</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-pines">
+              <tr><td colspan="6">Cargando PINs...</td></tr>
+            </tbody>
+          </table>
+          <button id="borrar-todos-pins" class="btn-borrar-todo" style="margin-top: 15px;">
+            🗑️ Borrar todos los PINs
+          </button>
+        </div>
+        
+        <!-- Vehículos -->
+        <div id="tab-vehiculos" class="hidden">
+          <h3>🚐 Flota Vehículos</h3>
+          <input type="text" id="matricula-vehiculo" placeholder="Matrícula (ej: ABC123)" style="margin-bottom: 10px;" />
+          <input type="text" id="modelo-vehiculo" placeholder="Modelo (ej: Ford Transit)" style="margin-bottom: 10px;" />
+          <button id="btn-agregar-vehiculo" style="margin-bottom: 20px;">➕ Añadir vehículo</button>
+          
+          <h4>📋 Lista de vehículos</h4>
+          <table id="tabla-vehiculos">
+            <thead>
+              <tr>
+                <th>Matrícula</th>
+                <th>Modelo</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-vehiculos">
+              <tr><td colspan="4">Cargando vehículos...</td></tr>
+            </tbody>
+          </table>
+          
+          <div id="detalle-vehiculo" style="margin-top: 20px; display: none;">
+            <h4>🔗 Enlace de acceso para <span id="vehiculo-actual"></span></h4>
+            <input type="text" id="url-vehiculo" placeholder="URL se generará aquí" readonly style="margin-bottom: 10px;" />
+            <button id="copiar-url-vehiculo" style="background: #9b59b6; margin-bottom: 20px;">📋 Copiar enlace</button>
+            
+            <!-- ✅ BOTONES DE GESTIÓN REORGANIZADOS -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
+              <button id="cargar-vehiculos-detalle" style="background: #3498db; padding: 10px 15px; border-radius: 6px;">↻ Cargar registros</button>
+              <button id="borrar-registros-vehiculos-detalle" style="background: #e74c3c; padding: 10px 15px; border-radius: 6px;">🗑️ Borrar todos los registros</button>
+              <button id="exportar-vehiculos-detalle" style="background: #2ecc71; padding: 10px 15px; border-radius: 6px;">📥 Exportar a Excel</button>
+            </div>
+            
+            <h4>📋 Últimos usos</h4>
+            <div id="usos-vehiculo">
+              <p>Cargando registros...</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contratos -->
+        <div id="tab-contratos" class="hidden">
+          <h3>📑 Gestión de Contratos</h3>
+          <h4>➕ Subir contrato para trabajador</h4>
+          <select id="pin-trabajador-contrato" style="margin-bottom: 10px; width: 100%; padding: 12px; font-size: 16px;">
+            <option value="">Selecciona un trabajador</option>
+          </select>
+          <input type="file" id="archivo-contrato" accept=".pdf" style="margin-bottom: 10px; width: 100%;" />
+          <button id="btn-subir-contrato" style="margin-bottom: 20px; width: 100%;">📤 Subir contrato</button>
+          <button id="cargar-contratos-admin">↻ Cargar contratos</button>
+          <button id="exportar-contratos">📥 Exportar a Excel</button>
+          
+          <h4 style="margin-top: 20px;">📋 Contratos subidos</h4>
+          <table id="tabla-contratos">
+            <thead>
+              <tr>
+                <th>PIN</th>
+                <th>Trabajador</th>
+                <th>Archivo</th>
+                <th>Fecha/Hora</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-contratos">
+              <tr><td colspan="5">Cargando contratos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+ 
+<!-- Gastos -->
+<div id="tab-gastos" class="hidden">
+  <h3>💰 Gestión de Gastos</h3>
+  
+  <div style="margin-bottom: 20px;">
+    <button id="cargar-gastos-admin" style="background: #9b59b6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+      🔄 Cargar todos los gastos
+    </button>
+    <button id="exportar-gastos-excel" style="background: #2ecc71; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+      📥 Exportar a Excel
+    </button>
+  </div>
+  
+  <div style="margin-top: 20px;">
+    <h4>📊 Todos los gastos registrados</h4>
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+  <thead>
+    <tr>
+      <th>PIN</th>
+      <th>Trabajador</th>
+      <th>Título</th>
+      <th>Concepto</th>
+      <th>Importe</th> <!-- ✅ Nueva columna -->
+      <th>Fecha/Hora</th>
+      <th>Leído</th>
+      <th>Ver</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+  <tbody id="cuerpo-gastos-admin">
+    <tr><td colspan="9">Cargando gastos...</td></tr>
+  </tbody>
+</table>
+  </div>
+</div>
+       
+        <!-- Estadísticas -->
+        <div id="tab-estadisticas" class="hidden">
+          <h3>📊 Estadísticas por PIN</h3>
+          <button id="cargar-contadores" style="margin-bottom: 15px; background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+            🔄 Cargar contadores
+          </button>
+          <div id="contenedores-estadisticas">
+            <p>Presiona "Cargar contadores" para ver las estadísticas.</p>
+          </div>
+        </div>
+        
+<!-- Notificaciones -->
+<div id="tab-notificaciones" class="hidden">
+  <h3>🔔 Panel de Notificaciones</h3>
+  
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h4>📤 Enviar nueva notificación</h4>
+    
+    <!-- Selector de destinatarios -->
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; margin-bottom: 8px; font-weight: bold;">
+        🎯 Destinatarios:
+      </label>
+      <select id="tipo-destinatario" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+        <option value="todos">Todos los trabajadores</option>
+        <option value="individual">Trabajador individual</option>
+        <option value="multiples">Varios trabajadores</option>
+        <option value="obra">Por obra/comentario</option>
+      </select>
+      
+      <!-- Selector individual -->
+      <select id="destinatario-individual" style="width: 100%; padding: 10px; margin-bottom: 10px; display: none;">
+        <option value="">Selecciona un trabajador</option>
+        <!-- Se llenará dinámicamente -->
+      </select>
+      
+<!-- Selector múltiple con estilo consistente -->
+<div id="destinatarios-multiples" style="display: none; margin-bottom: 10px;">
+  <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; background: #f8f9fa;">
+    <!-- Se llenará dinámicamente -->
+  </div>
+</div>
+      
+      <!-- Selector por obra -->
+      <select id="destinatario-obra" style="width: 100%; padding: 10px; margin-bottom: 10px; display: none;">
+        <option value="">Selecciona una obra</option>
+        <!-- Se llenará dinámicamente -->
+      </select>
+    </div>
+    
+    <!-- Campo de título -->
+    <input type="text" 
+           id="notificacion-titulo" 
+           placeholder="Título de la notificación *" 
+           style="margin-bottom: 10px; width: 100%; padding: 12px; box-sizing: border-box;" />
+    
+    <!-- Campo de mensaje -->
+    <textarea id="notificacion-mensaje" 
+              placeholder="Mensaje de la notificación *" 
+              rows="4" 
+              style="margin-bottom: 15px; width: 100%; padding: 12px; resize: vertical; min-height: 120px; box-sizing: border-box;"></textarea>
+    
+    <button id="enviar-notificacion" 
+            style="background: #9b59b6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%;">
+      📤 Enviar notificación
+    </button>
+    
+    <div id="mensaje-notificacion" style="margin-top: 10px; padding: 8px; border-radius: 4px; display: none;"></div>
+  </div>
+  
+  <div style="margin-top: 20px;">
+    <h4>📊 Historial de notificaciones</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Mensaje</th>
+          <th>Destinatarios</th>
+          <th>Fecha/Hora</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpo-notificaciones">
+        <tr><td colspan="5">Cargando historial...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  
+  <!-- Código JavaScript externo -->
+  <script src="admin.js"></script>
+
+<!-- === 🔄 SISTEMA DE ACTUALIZACIÓN AUTOMÁTICA === -->
+<script>
+const APP_VERSION = '2026.02.14'; // ⚠️ ¡ACTUALIZA ESTA FECHA EN CADA DEPLOY!
+
+(function() {
+    // Verificar versión al cargar
+    const storedVersion = localStorage.getItem('app_version');
+    
+    if (storedVersion && storedVersion !== APP_VERSION) {
+        console.log(`[UPDATE] Versión desactualizada detectada: ${storedVersion} → ${APP_VERSION}`);
+        localStorage.setItem('app_version', APP_VERSION);
+        
+        // Forzar recarga después de 1.5 segundos (tiempo suficiente para que el DOM cargue)
+        setTimeout(() => {
+            if (confirm('🔄 Nueva versión disponible\n\n¿Recargar para ver las mejoras más recientes?')) {
+                window.location.reload(true);
+            }
+        }, 1500);
+    } else {
+        localStorage.setItem('app_version', APP_VERSION);
+    }
+    
+    // Registrar Service Worker para actualizaciones futuras
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('[SW] Service Worker registrado correctamente');
+                    
+                    // Verificar actualizaciones cada 30 segundos
+                    setInterval(() => {
+                        registration.update();
+                    }, 30000);
+                    
+                    // Escuchar cuando haya una nueva versión instalada
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            // Cuando el nuevo SW esté instalado y esperando
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[SW] Nueva versión instalada y esperando');
+                                
+                                // Mostrar banner de actualización
+                                const updateBanner = document.createElement('div');
+                                updateBanner.id = 'update-banner';
+                                updateBanner.style.cssText = `
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    background: linear-gradient(135deg, #3498db, #2980b9);
+                                    color: white;
+                                    text-align: center;
+                                    padding: 15px;
+                                    font-weight: bold;
+                                    font-size: 1.1rem;
+                                    z-index: 10001;
+                                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    gap: 15px;
+                                    animation: slideDown 0.3s ease;
+                                `;
+                                updateBanner.innerHTML = `
+                                    <span>✨</span>
+                                    <span>Nueva versión disponible</span>
+                                    <button id="reload-btn" style="
+                                        background: white;
+                                        color: #2980b9;
+                                        border: none;
+                                        padding: 8px 20px;
+                                        border-radius: 20px;
+                                        font-weight: bold;
+                                        cursor: pointer;
+                                        margin-left: 15px;
+                                        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                                    ">Actualizar ahora</button>
+                                    <button id="dismiss-btn" style="
+                                        background: rgba(255,255,255,0.2);
+                                        color: white;
+                                        border: 1px solid white;
+                                        padding: 8px 15px;
+                                        border-radius: 20px;
+                                        cursor: pointer;
+                                        margin-left: 10px;
+                                    ">Más tarde</button>
+                                `;
+                                document.body.prepend(updateBanner);
+                                
+                                // Event listeners para los botones
+                                document.getElementById('reload-btn').addEventListener('click', () => {
+                                    window.location.reload(true);
+                                });
+                                
+                                document.getElementById('dismiss-btn').addEventListener('click', () => {
+                                    // Auto-recargar después de 30 segundos si se hace clic en "Más tarde"
+                                    setTimeout(() => {
+                                        if (document.getElementById('update-banner')) {
+                                            console.log('[SW] Recargando automáticamente para aplicar actualización');
+                                            window.location.reload(true);
+                                        }
+                                    }, 30000);
+                                });
+                                
+                                // Auto-recargar después de 30 segundos si no se interactúa
+                                setTimeout(() => {
+                                    if (document.getElementById('update-banner')) {
+                                        console.log('[SW] Recargando automáticamente para aplicar actualización');
+                                        window.location.reload(true);
+                                    }
+                                }, 30000);
+                            }
+                        });
+                    });
+                    
+                    // Escuchar mensaje del Service Worker sobre actualización
+                    navigator.serviceWorker.addEventListener('message', event => {
+                        if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                            console.log(`[SW] Actualización disponible: ${event.data.version}`);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('[SW] Error al registrar Service Worker:', error);
+                    
+                    // Si falla el registro, mostrar advertencia
+                    if (window.location.protocol === 'https:') {
+                        setTimeout(() => {
+                            const warning = document.createElement('div');
+                            warning.style.cssText = `
+                                position: fixed;
+                                bottom: 20px;
+                                right: 20px;
+                                background: #ff9800;
+                                color: white;
+                                padding: 15px;
+                                border-radius: 10px;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                                z-index: 10000;
+                                max-width: 300px;
+                                font-weight: bold;
+                                text-align: center;
+                            `;
+                            
+                            // Auto-ocultar después de 8 segundos
+                            setTimeout(() => {
+                                warning.style.opacity = '0';
+                                warning.style.transition = 'opacity 0.5s';
+                                setTimeout(() => warning.remove(), 500);
+                            }, 8000);
+                        }, 3000);
+                    }
+                });
+        });
+    }
+})();
+</script>
+
+</body>
+</html>

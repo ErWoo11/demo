@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- PWA y Responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#3498db">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo-512.png">
+  
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Control Horario">
+
+  <meta charset="UTF-8" />
+  <title>Descargar Nómina</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: url('fondo.png') repeat;
+      background-size: 300px;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Logo */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 100%;
+      max-width: 300 px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+      display: block;
+    }
+
+    #logo.fallback {
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      margin: 0 auto 40px;
+    }
+
+    /* Efecto al pasar el ratón */
+    .logo:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #f2f2f2;
+      color: #2c3e50;
+    }
+
+    #mensaje {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+
+    #registros-container {
+      margin-top: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      input, button {
+        padding: 10px;
+        font-size: 14px;
+      }
+    }
+  </style>
+
+<!-- ✅ Sistema de actualización automática -->
+<script>
+  // Añadir timestamp a todas las URLs de scripts y estilos
+  document.addEventListener('DOMContentLoaded', () => {
+    const timestamp = Date.now();
+    
+    // Actualizar scripts
+    document.querySelectorAll('script[src]').forEach(script => {
+      if (!script.src.includes('?v=')) {
+        script.src = script.src + '?v=' + timestamp;
+      }
+    });
+    
+    // Actualizar estilos (si tienes CSS externos)
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+      if (!link.href.includes('?v=')) {
+        link.href = link.href + '?v=' + timestamp;
+      }
+    });
+  });
+</script>
+
+</head>
+<body>
+  <!-- Logo centrado -->
+  <div class="main-content">
+    <!-- Logo (clic para volver a inicio) -->
+    <div class="header">
+      <a href="index.html">
+        <img src="logo.png" alt="Logo de la Empresa" class="logo" id="logo">
+      </a>
+    </div>
+
+    <!-- Contenido con fondo blanco -->
+    <div class="container">
+      <h2>📄 Descargar mi Nómina</h2>
+      <p>Introduce tu PIN para acceder a tu última nómina.</p>
+      
+      <input type="number" id="pin" placeholder="Tu PIN (4 dígitos)" min="1000" max="9999" />
+      <button id="descargar">📥 Descargar Nómina</button>
+      
+      <div id="mensaje"></div>
+    </div>
+  </div>
+
+  <script>
+    // 👇 REEMPLAZA "ErWoo11" por tu usuario de GitHub
+    const GITHUB_USER = "ErWoo11";
+    const GITHUB_REPO = "nominas-empresa";
+
+    // Mostrar mensaje
+    function mostrarMensaje(texto, tipo = 'success') {
+      const msg = document.getElementById('mensaje');
+      msg.textContent = texto;
+      msg.className = tipo;
+      msg.style.display = 'block';
+      
+      // Ocultar después de 3 segundos si es éxito
+      if (tipo === 'success') {
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    // ✅ Función definitiva para iPhone y todos los dispositivos
+    async function descargarNomina() {
+      const pin = document.getElementById('pin').value.trim();
+      
+      if (!pin || pin.length !== 4 || isNaN(pin)) {
+        mostrarMensaje('⚠️ Introduce un PIN válido de 4 dígitos.', 'error');
+        return;
+      }
+
+      const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${pin}.pdf`;
+
+      try {
+        // Mostrar mensaje de carga
+        mostrarMensaje('📥 Descargando nómina...', 'success');
+
+        // Obtener el PDF como array buffer
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error('PDF no encontrado');
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Crear Blob con tipo MIME correcto
+        const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        
+        // ✅ SOLUCIÓN DEFINITIVA PARA IPHONE: Usar enlace de descarga
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `nomina_${pin}.pdf`; // Nombre personalizado
+        
+        // Detectar si estamos en iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        if (isIOS) {
+          // En iOS: abrir en nueva pestaña (Safari maneja mejor la descarga)
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          // En otros dispositivos: usar download normal
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        
+        // Limpiar URL del blob después de un tiempo para liberar memoria
+        setTimeout(() => URL.revokeObjectURL(link.href), 60000);
+        
+        // Limpiar campo PIN
+        document.getElementById('pin').value = '';
+        
+      } catch (err) {
+        console.error('Error al descargar nómina:', err);
+        mostrarMensaje('❌ No hay nómina disponible para este PIN.', 'error');
+      }
+    }
+
+    // Evento del botón
+    document.getElementById('descargar').addEventListener('click', descargarNomina);
+    
+    // También permitir Enter en el campo PIN
+    document.getElementById('pin').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        descargarNomina();
+      }
+    });
+
+    // Fallback para logo
+    document.getElementById('logo').onerror = function() {
+      this.classList.add('fallback');
+      this.textContent = 'LC';
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Administrador Grupo Decoplac",
+  "short_name": "Administrador Grupo Decoplac",
+  "description": "Sistema de control de jornada laboral y gestión de flota de vehículos",
+  "start_url": "admin.html",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#3498db",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/grupodecoplac/logo-admin.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/grupodecoplac/logo-admin-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

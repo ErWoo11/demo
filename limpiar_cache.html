@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limpieza de Cache - Control Horario</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 90%;
+      width: 400px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    .message {
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .info {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .success {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background: #2980b9;
+    }
+    
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #ecf0f1;
+      border-radius: 4px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #2ecc71;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    
+    .step {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      text-align: left;
+      display: none;
+    }
+    
+    .step.active {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Limpieza de Cache</h1>
+    
+    <div class="message info">
+      Esta herramienta limpiará la cache del navegador y eliminará Service Workers antiguos para resolver problemas con la aplicación.
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    
+    <div class="step active" id="step-1">
+      <strong>Paso 1:</strong> Cerrar todas las pestañas de la aplicación
+    </div>
+    
+    <div class="step" id="step-2">
+      <strong>Paso 2:</strong> Limpiar almacenamiento del sitio
+    </div>
+    
+    <div class="step" id="step-3">
+      <strong>Paso 3:</strong> Eliminar Service Workers
+    </div>
+    
+    <div class="step" id="step-4">
+      <strong>Paso 4:</strong> Reiniciar aplicación
+    </div>
+    
+    <div class="step" id="step-5">
+      <strong>¡Listo!</strong> Puedes volver a abrir la aplicación
+    </div>
+    
+    <button id="btn-iniciar" onclick="iniciarLimpieza()">🚀 Iniciar limpieza</button>
+    <button id="btn-probar" onclick="probarConexion()" style="background: #2ecc71; display: none;">🔍 Probar conexión</button>
+    <button id="btn-volver" onclick="volverAAdmin()" style="background: #9b59b6; display: none;">🏠 Volver a Admin</button>
+    
+    <div id="resultados" style="margin-top: 20px; text-align: left; font-size: 14px;"></div>
+  </div>
+
+  <script>
+    let currentStep = 0;
+    const steps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
+    
+    function updateProgress() {
+      const progress = (currentStep / (steps.length - 1)) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
+      
+      // Ocultar todos los pasos
+      steps.forEach(step => {
+        document.getElementById(step).classList.remove('active');
+      });
+      
+      // Mostrar paso actual
+      if (steps[currentStep]) {
+        document.getElementById(steps[currentStep]).classList.add('active');
+      }
+    }
+    
+    async function iniciarLimpieza() {
+      const btnIniciar = document.getElementById('btn-iniciar');
+      btnIniciar.disabled = true;
+      btnIniciar.textContent = 'Limpiando...';
+      
+      const resultados = document.getElementById('resultados');
+      resultados.innerHTML = '';
+      
+      try {
+        // Paso 1: Cerrar pestañas
+        currentStep = 1;
+        updateProgress();
+        resultados.innerHTML += '<div>✅ Cerrando pestañas...</div>';
+        await sleep(1000);
+        
+        // Paso 2: Limpiar almacenamiento
+        currentStep = 2;
+        updateProgress();
+        resultados.innerHTML += '<div>🧹 Limpiando almacenamiento...</div>';
+        
+        // Limpiar localStorage
+        localStorage.clear();
+        
+        // Limpiar sessionStorage
+        sessionStorage.clear();
+        
+        // Limpiar IndexedDB (si existe)
+        await limpiarIndexedDB();
+        
+        await sleep(1000);
+        resultados.innerHTML += '<div>✅ Almacenamiento limpiado</div>';
+        
+        // Paso 3: Eliminar Service Workers
+        currentStep = 3;
+        updateProgress();
+        resultados.innerHTML += '<div>🤖 Eliminando Service Workers...</div>';
+        
+        await eliminarServiceWorkers();
+        await sleep(1000);
+        resultados.innerHTML += '<div>✅ Service Workers eliminados</div>';
+        
+        // Paso 4: Reiniciar
+        currentStep = 4;
+        updateProgress();
+        resultados.innerHTML += '<div>🔄 Reiniciando aplicación...</div>';
+        await sleep(1000);
+        
+        // Paso 5: Finalizado
+        currentStep = 5;
+        updateProgress();
+        resultados.innerHTML += '<div>🎉 ¡Limpieza completada!</div>';
+        
+        document.getElementById('btn-probar').style.display = 'inline-block';
+        document.getElementById('btn-volver').style.display = 'inline-block';
+        
+      } catch (error) {
+        resultados.innerHTML += `<div style="color: #e74c3c;">❌ Error: ${error.message}</div>`;
+        console.error('Error en limpieza:', error);
+      }
+    }
+    
+    async function limpiarIndexedDB() {
+      if (!window.indexedDB) return;
+      
+      const databases = await getDatabases();
+      for (const dbName of databases) {
+        try {
+          const req = indexedDB.deleteDatabase(dbName);
+          await new Promise((resolve, reject) => {
+            req.onsuccess = resolve;
+            req.onerror = reject;
+          });
+        } catch (err) {
+          console.warn('No se pudo eliminar IndexedDB:', dbName, err);
+        }
+      }
+    }
+    
+    async function getDatabases() {
+      // Esta función obtiene los nombres de bases de datos IndexedDB
+      // Usaremos una aproximación simple
+      return new Promise(resolve => {
+        const databases = [];
+        // Simplemente devolvemos nombres comunes que podrían existir
+        resolve(['firebaseLocalStorageDb', 'firebaseInstallationsIdb', 'control-horario-db']);
+      });
+    }
+    
+    async function eliminarServiceWorkers() {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+    }
+    
+    async function probarConexion() {
+      try {
+        const respuesta = await fetch('/controlhorario/admin.html', { method: 'HEAD' });
+        if (respuesta.ok) {
+          document.getElementById('resultados').innerHTML += '<div style="color: #2ecc71;">✅ Conexión a admin.html: OK</div>';
+        } else {
+          document.getElementById('resultados').innerHTML += '<div style="color: #e74c3c;">❌ Conexión a admin.html: Error</div>';
+        }
+      } catch (error) {
+        document.getElementById('resultados').innerHTML += `<div style="color: #e74c3c;">❌ Error de conexión: ${error.message}</div>`;
+      }
+    }
+    
+    function volverAAdmin() {
+      // Redirigir a admin.html después de limpiar cache
+      window.location.href = '/controlhorario/admin.html';
+    }
+    
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    // Auto-detectar problemas comunes
+    window.addEventListener('load', () => {
+      const resultados = document.getElementById('resultados');
+      
+      // Verificar si hay SW registrados
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          if (registrations.length > 0) {
+            resultados.innerHTML += '<div style="color: #f39c12;">⚠️ Se detectaron Service Workers antiguos</div>';
+          }
+        });
+      }
+      
+      // Verificar almacenamiento
+      if (localStorage.length > 0) {
+        resultados.innerHTML += '<div style="color: #f39c12;">⚠️ Se detectó almacenamiento local</div>';
+      }
+      
+      if (sessionStorage.length > 0) {
+        resultados.innerHTML += '<div style="color: #f39c12;">⚠️ Se detectó almacenamiento de sesión</div>';
+      }
+    });
+  </script>
+</body>
+</html>

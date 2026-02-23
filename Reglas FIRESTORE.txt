@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /estadisticas_pins/{pin} {
+      allow read, write: if true;
+    }
+    match /trabajadores/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /registros_publicos/{doc} {
+      allow read, write: if true;
+    }
+    match /pines_acceso/{pin} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    // ✅ REGLAS PARA VEHÍCULOS
+    match /vehiculos/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /uso_vehiculos/{doc} {
+      allow read, write: if true;
+    }
+    // ✅ REGLAS PARA CONTRATOS
+    match /contratos_trabajadores/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+        // ✅ Reglas para notificaciones internas
+    match /notificaciones_internas/{document} {
+      allow read: if true;
+      allow write: if true
+    }
+        // ✅ Reglas para configuración del sistema
+    match /configuracion_sistema/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    // ✅ Reglas para seguimiento de notificaciones por trabajador
+    match /notificaciones_trabajadores/{pin} {
+      allow read, write: if true; // Cualquiera puede leer/escribir su propio registro
+    }
+  }
+}

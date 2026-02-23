@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#2c3e50">
+  <meta name="description" content="Sistema de control Grupo Decoplac">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo-512.png">
+  
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Control Horario">
+  
+  <title>Plataforma Grupo Decoplac</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('fondo-ondas.png') repeat;
+      background-size: 300px;
+      background-color: #f9f9f9;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Logo */
+    .logo {
+      width: 100%;
+      max-width: 350 px;
+      height: auto;
+      margin-bottom: 30px;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    /* Título */
+    h1 {
+      font-size: 32px;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Botones principales */
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      padding: 18px 32px;
+      font-size: 20px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .btn-registro { background: #2ecc71; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); }
+    .btn-nomina { background: #9b59b6; box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3); }
+    .btn-contratos { background: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+    .btn-gastos { background: #e74c3c; box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3); }
+
+    /* ✅ Estilo para botones deshabilitados */
+    .btn:disabled {
+      opacity: 0.9;
+      background: #bdc3c7 !important;
+      color: #95a5a6 !important;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+
+    /* Botón de engranaje - Opciones */
+    .btn-opciones {
+      background: #2c3e50;
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+      margin: 0 auto 25px;
+    }
+
+    .btn-opciones:hover {
+      transform: rotate(90deg);
+      transition: transform 0.3s ease;
+    }
+
+    /* Panel de Opciones */
+    .opciones-panel {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      display: none;
+    }
+
+    .opciones-panel h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .btn-accion {
+      background: #2c3e50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .msg-error {
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .msg-bloqueo {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      .logo { max-width: 300px; margin-bottom: 25px; }
+      h1 { font-size: 28px; }
+      .btn { font-size: 18px; padding: 16px 24px; }
+      .btn-opciones { width: 50px; height: 50px; font-size: 20px; }
+    }
+    
+    @media (max-width: 320px) {
+      .btn { font-size: 16px; padding: 14px 20px; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <img src="logo.png" alt="Logo de la Empresa" class="logo" id="logo">
+
+    <h1>Sistema de Control Horario</h1>
+
+    <!-- Botones principales (todos deshabilitados excepto opciones) -->
+    <div class="buttons">
+	<button onclick="window.location.href='mis_registros.html'"
+          class="btn btn-registro"
+          id="btn-registros"
+          disabled>
+	📋 MIS REGISTROS HORARIOS
+        </button>
+	<button onclick="window.location.href='nomina.html'"
+          class="btn btn-nomina"
+          id="btn-nomina"
+          disabled>
+	📄 DESCARGAR NÓMINA
+        </button>
+	<button onclick="window.location.href='contratos.html'"
+          class="btn btn-contratos"
+          id="btn-contratos"
+          disabled>
+	📑 MIS CONTRATOS
+        </button>
+	<button onclick="window.location.href='gastos.html'"
+          class="btn btn-gastos"
+          id="btn-gastos"
+          disabled>
+	💰 REGISTRAR GASTO
+        </button>
+      
+      <!-- ✅ Botón de notificaciones con contador -->
+      <button onclick="window.location.href='notificaciones.html'" 
+              id="boton-notificaciones"
+              class="btn"
+              disabled>
+        Cargando notificaciones...
+      </button>
+    </div>
+
+    <!-- ✅ Botón de engranaje SIEMPRE ACTIVO -->
+    <button class="btn-opciones" id="btn-abrir-opciones">⚙️</button>
+
+    <!-- Panel de Opciones -->
+    <div class="opciones-panel" id="panel-opciones">
+      <h2>🔐 Opciones</h2>
+      <input type="text" 
+             id="pin-opciones" 
+             class="pin-input" 
+             placeholder="Introduce tu PIN (4 dígitos)" 
+             maxlength="4" />
+      <button class="btn-accion" id="btn-verificar-pin">Verificar PIN</button>
+      <button class="btn-accion" style="background: #e74c3c;" id="btn-cerrar-sesion">Cerrar sesión</button>
+      <div id="mensaje-error" class="msg-error"></div>
+      <div id="mensaje-bloqueo" class="msg-bloqueo" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Inicializar Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyAhp3v6jwxN8nrachWt3m879Ir8_midnbs",
+    authDomain: "gen-lang-client-0317267897.firebaseapp.com",
+    projectId: "gen-lang-client-0317267897",
+    storageBucket: "gen-lang-client-0317267897.firebasestorage.app",
+    messagingSenderId: "952141780593",
+    appId: "1:952141780593:web:72c0f7aada03741958edd0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Constantes
+    const MAX_INTENTOS = 3;
+    const TIEMPO_BLOQUEO = 10 * 60 * 1000; // 10 minutos
+
+    // Elementos
+    const pinInput = document.getElementById('pin-opciones');
+    const panelOpciones = document.getElementById('panel-opciones');
+    const btnAbrirOpciones = document.getElementById('btn-abrir-opciones');
+    const btnVerificar = document.getElementById('btn-verificar-pin');
+    const btnCerrarSesion = document.getElementById('btn-cerrar-sesion');
+    const errorMsg = document.getElementById('mensaje-error');
+    const bloqueoMsg = document.getElementById('mensaje-bloqueo');
+
+    // Función para habilitar/deshabilitar botones principales
+    function habilitarBotonesPrincipales() {
+      document.getElementById('btn-registros').disabled = false;
+      document.getElementById('btn-nomina').disabled = false;
+      document.getElementById('btn-contratos').disabled = false;
+      document.getElementById('btn-gastos').disabled = false;
+      document.getElementById('boton-notificaciones').disabled = false;
+    }
+
+    function deshabilitarBotonesPrincipales() {
+      document.getElementById('btn-registros').disabled = true;
+      document.getElementById('btn-nomina').disabled = true;
+      document.getElementById('btn-contratos').disabled = true;
+      document.getElementById('btn-gastos').disabled = true;
+      document.getElementById('boton-notificaciones').disabled = true;
+    }
+
+    // Abrir/cerrar panel de opciones
+    btnAbrirOpciones.addEventListener('click', () => {
+      panelOpciones.style.display = panelOpciones.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Verificar PIN
+    async function verificarPIN() {
+      const pin = pinInput.value.trim();
+      
+      if (!pin || pin.length !== 4 || isNaN(pin)) {
+        mostrarError('⚠️ Introduce un PIN válido de 4 dígitos');
+        return;
+      }
+
+      // Verificar bloqueo
+      const ultimoIntento = localStorage.getItem('ultimo-intento');
+      const intentos = parseInt(localStorage.getItem('intentos-fallidos') || '0');
+      
+      if (ultimoIntento && Date.now() - parseInt(ultimoIntento) < TIEMPO_BLOQUEO && intentos >= MAX_INTENTOS) {
+        const tiempoRestante = TIEMPO_BLOQUEO - (Date.now() - parseInt(ultimoIntento));
+        mostrarBloqueo(tiempoRestante);
+        return;
+      }
+
+      try {
+        const snapshot = await db.collection('trabajadores')
+          .where('pin', '==', pin)
+          .limit(1)
+          .get();
+
+        if (snapshot.empty) {
+          const nuevosIntentos = intentos + 1;
+          localStorage.setItem('intentos-fallidos', nuevosIntentos.toString());
+          localStorage.setItem('ultimo-intento', Date.now().toString());
+          
+          if (nuevosIntentos >= MAX_INTENTOS) {
+            mostrarBloqueo(TIEMPO_BLOQUEO);
+          } else {
+            mostrarError(`❌ PIN no válido. Te quedan ${MAX_INTENTOS - nuevosIntentos} intentos.`);
+          }
+          return;
+        }
+
+        // PIN válido
+        localStorage.setItem('pin-valido', pin);
+        pinInput.value = pin;
+        pinInput.disabled = true;
+        btnVerificar.style.display = 'none';
+        
+        habilitarBotonesPrincipales();
+        verificarNotificacionesTrabajador(pin);
+        panelOpciones.style.display = 'none';
+        alert('✅ Acceso concedido');
+        
+      } catch (error) {
+        console.error('Error al verificar PIN:', error);
+        mostrarError('❌ Error al verificar el PIN');
+      }
+    }
+
+    // Cerrar sesión
+    function cerrarSesion() {
+      localStorage.removeItem('pin-valido');
+      pinInput.value = '';
+      pinInput.disabled = false;
+      btnVerificar.style.display = 'block';
+      deshabilitarBotonesPrincipales();
+      panelOpciones.style.display = 'none';
+      document.getElementById('boton-notificaciones').textContent = 'Cargando notificaciones...';
+      document.getElementById('boton-notificaciones').style.background = '#3498db';
+    }
+
+    // Mensajes
+    function mostrarError(mensaje) {
+      errorMsg.textContent = mensaje;
+      setTimeout(() => errorMsg.textContent = '', 5000);
+    }
+
+    function mostrarBloqueo(tiempoRestante) {
+      const minutos = Math.ceil(tiempoRestante / 60000);
+      bloqueoMsg.textContent = `🔒 Demasiados intentos. Espera ${minutos} minuto(s).`;
+      bloqueoMsg.style.display = 'block';
+      btnVerificar.disabled = true;
+      pinInput.disabled = true;
+      
+      setTimeout(() => {
+        localStorage.removeItem('intentos-fallidos');
+        localStorage.removeItem('ultimo-intento');
+        bloqueoMsg.style.display = 'none';
+        btnVerificar.disabled = false;
+        pinInput.disabled = false;
+      }, tiempoRestante);
+    }
+
+    // ✅ Verificar notificaciones del trabajador (con contador individual)
+  async function verificarNotificacionesTrabajador(pin) {
+  try {
+    // Obtener notificaciones
+    const notificacionesSnapshot = await db.collection('notificaciones_internas').get();
+    
+    // Obtener las obras donde este trabajador ha registrado actividad
+    const registrosSnapshot = await db.collection('registros_publicos')
+      .where('trabajadorId', '==', pin)
+      .get();
+    
+    const obrasTrabajador = new Set();
+    registrosSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.comentario && data.comentario.trim() !== '') {
+        obrasTrabajador.add(data.comentario.trim());
+      }
+    });
+    
+    let tieneNotificaciones = false;
+    let contador = 0;
+    
+    notificacionesSnapshot.forEach(doc => {
+      const data = doc.data();
+      let esParaEstePin = false;
+      
+      if (data.tipoDestino === 'todos') {
+        esParaEstePin = true;
+      } else if (data.tipoDestino === 'individual' && data.destinatarios.includes(pin)) {
+        esParaEstePin = true;
+      } else if (data.tipoDestino === 'multiples' && data.destinatarios.includes(pin)) {
+        esParaEstePin = true;
+      } else if (data.tipoDestino === 'obra' && data.destinatarios.length > 0) {
+        // ✅ Verificar si el trabajador ha trabajado en esta obra
+        const obraNotificacion = data.destinatarios[0];
+        if (obrasTrabajador.has(obraNotificacion)) {
+          esParaEstePin = true;
+        }
+      }
+      
+      // Verificar si ya fue leída por este PIN
+      const yaLeida = data.leidos?.[pin] === true;
+      
+      if (esParaEstePin && !yaLeida) {
+        tieneNotificaciones = true;
+        contador++;
+      }
+    });
+
+    const boton = document.getElementById('boton-notificaciones');
+    if (tieneNotificaciones) {
+	boton.textContent = `🔔 TIENES ${contador} ${contador === 1 ? 'NOTIFICACIÓN' : 'NOTIFICACIONES'}`;
+          boton.style.background = '#e67e22'; // Naranja
+    } else {
+      boton.textContent = '🔕 No tienes notificaciones pendientes';
+      boton.style.background = '#95a5a6'; // Gris
+    }
+
+  } catch (error) {
+    console.error('Error al verificar notificaciones:', error);
+    const boton = document.getElementById('boton-notificaciones');
+    boton.textContent = '❌ Error al cargar notificaciones';
+    boton.style.background = '#e74c3c';
+  }
+}
+
+    // Eventos
+    btnVerificar.addEventListener('click', verificarPIN);
+    btnCerrarSesion.addEventListener('click', cerrarSesion);
+    pinInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verificarPIN();
+    });
+
+    // Inicialización
+    window.addEventListener('load', () => {
+      // Todos los botones principales empiezan deshabilitados
+      deshabilitarBotonesPrincipales();
+      
+      const pinGuardado = localStorage.getItem('pin-valido');
+      if (pinGuardado) {
+        pinInput.value = pinGuardado;
+        pinInput.disabled = true;
+        btnVerificar.style.display = 'none';
+        habilitarBotonesPrincipales();
+        verificarNotificacionesTrabajador(pinGuardado);
+      }
+
+      // Verificar bloqueo inicial
+      const ultimoIntento = localStorage.getItem('ultimo-intento');
+      const intentos = parseInt(localStorage.getItem('intentos-fallidos') || '0');
+      if (ultimoIntento && Date.now() - parseInt(ultimoIntento) < TIEMPO_BLOQUEO && intentos >= MAX_INTENTOS) {
+        const tiempoRestante = TIEMPO_BLOQUEO - (Date.now() - parseInt(ultimoIntento));
+        mostrarBloqueo(tiempoRestante);
+      }
+    });
+  </script>
+
+<!-- === 🔄 SISTEMA DE ACTUALIZACIÓN AUTOMÁTICA === -->
+<script>
+const APP_VERSION = '2026.02.16'; // ⚠️ ¡ACTUALIZA ESTA FECHA EN CADA DEPLOY!
+
+(function() {
+    // Verificar versión al cargar
+    const storedVersion = localStorage.getItem('app_version');
+    
+    if (storedVersion && storedVersion !== APP_VERSION) {
+        console.log(`[UPDATE] Versión desactualizada detectada: ${storedVersion} → ${APP_VERSION}`);
+        localStorage.setItem('app_version', APP_VERSION);
+        
+        // Forzar recarga después de 1.5 segundos (tiempo suficiente para que el DOM cargue)
+        setTimeout(() => {
+            if (confirm('🔄 Nueva versión disponible\n\n¿Recargar para ver las mejoras más recientes?')) {
+                window.location.reload(true);
+            }
+        }, 1500);
+    } else {
+        localStorage.setItem('app_version', APP_VERSION);
+    }
+    
+    // Registrar Service Worker para actualizaciones futuras
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('[SW] Service Worker registrado correctamente');
+                    
+                    // Verificar actualizaciones cada 30 segundos
+                    setInterval(() => {
+                        registration.update();
+                    }, 30000);
+                    
+                    // Escuchar cuando haya una nueva versión instalada
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            // Cuando el nuevo SW esté instalado y esperando
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[SW] Nueva versión instalada y esperando');
+                                
+                                // Mostrar banner de actualización
+                                const updateBanner = document.createElement('div');
+                                updateBanner.id = 'update-banner';
+                                updateBanner.style.cssText = `
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    background: linear-gradient(135deg, #3498db, #2980b9);
+                                    color: white;
+                                    text-align: center;
+                                    padding: 15px;
+                                    font-weight: bold;
+                                    font-size: 1.1rem;
+                                    z-index: 10001;
+                                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    gap: 15px;
+                                    animation: slideDown 0.3s ease;
+                                `;
+                                updateBanner.innerHTML = `
+                                    <span>✨</span>
+                                    <span>Nueva versión disponible</span>
+                                    <button id="reload-btn" style="
+                                        background: white;
+                                        color: #2980b9;
+                                        border: none;
+                                        padding: 8px 20px;
+                                        border-radius: 20px;
+                                        font-weight: bold;
+                                        cursor: pointer;
+                                        margin-left: 15px;
+                                        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                                    ">Actualizar ahora</button>
+                                    <button id="dismiss-btn" style="
+                                        background: rgba(255,255,255,0.2);
+                                        color: white;
+                                        border: 1px solid white;
+                                        padding: 8px 15px;
+                                        border-radius: 20px;
+                                        cursor: pointer;
+                                        margin-left: 10px;
+                                    ">Más tarde</button>
+                                `;
+                                document.body.prepend(updateBanner);
+                                
+                                // Event listeners para los botones
+                                document.getElementById('reload-btn').addEventListener('click', () => {
+                                    window.location.reload(true);
+                                });
+                                
+                                document.getElementById('dismiss-btn').addEventListener('click', () => {
+                                    // Auto-recargar después de 30 segundos si se hace clic en "Más tarde"
+                                    setTimeout(() => {
+                                        if (document.getElementById('update-banner')) {
+                                            console.log('[SW] Recargando automáticamente para aplicar actualización');
+                                            window.location.reload(true);
+                                        }
+                                    }, 30000);
+                                });
+                                
+                                // Auto-recargar después de 30 segundos si no se interactúa
+                                setTimeout(() => {
+                                    if (document.getElementById('update-banner')) {
+                                        console.log('[SW] Recargando automáticamente para aplicar actualización');
+                                        window.location.reload(true);
+                                    }
+                                }, 30000);
+                            }
+                        });
+                    });
+                    
+                    // Escuchar mensaje del Service Worker sobre actualización
+                    navigator.serviceWorker.addEventListener('message', event => {
+                        if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                            console.log(`[SW] Actualización disponible: ${event.data.version}`);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('[SW] Error al registrar Service Worker:', error);
+                    
+                    // Si falla el registro, mostrar advertencia
+                    if (window.location.protocol === 'https:') {
+                        setTimeout(() => {
+                            const warning = document.createElement('div');
+                            warning.style.cssText = `
+                                position: fixed;
+                                bottom: 20px;
+                                right: 20px;
+                                background: #ff9800;
+                                color: white;
+                                padding: 15px;
+                                border-radius: 10px;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                                z-index: 10000;
+                                max-width: 300px;
+                                font-weight: bold;
+                                text-align: center;
+                            `;
+                            
+                            // Auto-ocultar después de 8 segundos
+                            setTimeout(() => {
+                                warning.style.opacity = '0';
+                                warning.style.transition = 'opacity 0.5s';
+                                setTimeout(() => warning.remove(), 500);
+                            }, 8000);
+                        }, 3000);
+                    }
+                });
+        });
+    }
+})();
+</script>
+
+</body>
+</html>
