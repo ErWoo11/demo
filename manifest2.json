@@ -1,6 +1,6 @@
 {
-  "name": "Administrador Grupo Decoplac",
-  "short_name": "Administrador Grupo Decoplac",
+  "name": "Administrador DEMO",
+  "short_name": "Administrador DEMO",
   "description": "Sistema de control de jornada laboral y gestión de flota de vehículos",
   "start_url": "admin.html",
   "display": "standalone",
@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/grupodecoplac/logo-admin.png",
+      "src": "/demo/logo-admin.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/grupodecoplac/logo-admin-512.png",
+      "src": "/demo/logo-admin-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -1,6 +1,6 @@
 {
-  "name": "Sistema Grupo Decoplac",
-  "short_name": "Grupo Decoplac",
+  "name": "Sistema DEMO",
+  "short_name": "DEMO",
   "description": "Sistema de control de jornada laboral y gestión de flota de vehículos",
   "start_url": "/",
   "display": "standalone",
@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/grupodecoplac/logo.png",
+      "src": "/demo/logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/grupodecoplac/logo-512.png",
+      "src": "/demo/logo-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
