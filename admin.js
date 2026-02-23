@@ -748,7 +748,7 @@ async function guardarPIN(pin, activo, comentario) {
     });
     
     document.getElementById('comentario-pin').value = '';
-    document.getElementById('url-acceso').value = `https://plataformagd.es/registro.html?pin=${pin}`;
+    document.getElementById('url-acceso').value = `https://github.com/ErWoo11/demo/registro.html?pin=${pin}`;
     document.getElementById('msg-pin').textContent = '✅ PIN guardado';
     document.getElementById('msg-pin').className = 'success';
     
@@ -854,7 +854,7 @@ async function cargarPinesAcceso() {
         const pin = e.target.dataset.pin;
         const comentario = e.target.dataset.comentario;
         document.getElementById('comentario-pin').value = comentario;
-        document.getElementById('url-acceso').value = `https://plataformagd.es/registro.html?pin=${pin}`;
+        document.getElementById('url-acceso').value = `https://github.com/ErWoo11/demo/registro.html?pin=${pin}`;
       });
     });
     
@@ -1007,7 +1007,7 @@ async function eliminarVehiculo(id, matricula) {
 
 async function mostrarDetalleVehiculo(id, matricula, modelo) {
   document.getElementById('vehiculo-actual').textContent = `${matricula} (${modelo})`;
-  document.getElementById('url-vehiculo').value = `https://plataformagd.es/vehiculo.html?vehiculo=${id}`;
+  document.getElementById('url-vehiculo').value = `https://github.com/ErWoo11/demo/vehiculo.html?vehiculo=${id}`;
   document.getElementById('detalle-vehiculo').style.display = 'block';
   
   setTimeout(() => {
