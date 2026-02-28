@@ -410,7 +410,14 @@
             <input type="text" id="url-acceso" placeholder="URL se generará aquí" readonly style="margin-bottom: 10px;" />
             <button id="generar-url">📋 Copiar enlace</button>
           </div>
-          
+
+          <!-- Añadir dentro del formulario de generación de PIN en admin.html -->
+<div style="margin-top: 10px; font-size: 0.9em; color: #555;">
+    <label>📍 Radio permitido (metros):</label>
+    <input type="number" id="radio-pin" value="1000" style="width: 80px;">
+    <small>(Deja vacío para usar ubicación actual del admin)</small>
+</div>
+
           <h4 style="margin-top: 20px;">Lista de PINs</h4>
           <table id="tabla-pines">
             <thead>
@@ -420,6 +427,7 @@
                 <th>Comentario</th>
                 <th>Estado</th>
                 <th>Acción</th>
+                <th>Geo</th>
                 <th>Eliminar</th>
               </tr>
             </thead>

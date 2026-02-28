@@ -139,6 +139,35 @@
       font-weight: bold;
       display: none;
     }
+
+/* ✅ Estilos para geolocalización */
+#info-obra {
+  font-size: 14px;
+  color: #2c3e50;
+  border-left: 4px solid #3498db;
+}
+
+#ubicacion-mensaje.verificado {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+#ubicacion-mensaje.error {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+#btn-verificar-ubicacion {
+  background: #3498db !important;
+  font-size: 14px;
+  padding: 10px;
+}
+
+#btn-verificar-ubicacion:disabled {
+  background: #bdc3c7 !important;
+  cursor: not-allowed;
+}
+
   </style>
 
 <!-- ✅ Sistema de actualización automática -->
@@ -174,6 +203,17 @@
     <!-- Contenido -->
     <div class="container">
       <h2>Registro de Jornada</h2>
+
+<!-- ✅ Información de la obra y geolocalización -->
+<div id="info-obra" style="display:none; margin-bottom: 15px; padding: 10px; background: #e8f4f8; border-radius: 8px; text-align: left;">
+  <strong>🏗️ Obra:</strong> <span id="obra-nombre">Cargando...</span><br>
+  <strong>📍 Estado:</strong> <span id="ubicacion-mensaje">Verificando ubicación...</span>
+</div>
+
+<!-- ✅ Botón de verificación manual (opcional, por si falla la automática) -->
+<button id="btn-verificar-ubicacion" style="display:none; background: #3498db; margin-bottom: 15px;">
+  🔄 Verificar ubicación manualmente
+</button>
 
       <div id="cargando">Cargando lista de trabajadores...</div>
       <div id="formulario" style="display:none;">
@@ -274,6 +314,34 @@
         console.error("Error al cargar trabajadores:", err);
         document.getElementById('cargando').textContent = '❌ Error al cargar. Revisa conexión.';
       }
+
+// Mostrar sección de obra y verificar ubicación
+document.getElementById('info-obra').style.display = 'block';
+document.getElementById('btn-verificar-ubicacion').style.display = 'block';
+
+// Verificación automática al cargar
+verificarGeolocalizacion().then(esValida => {
+  // Habilitar/deshabilitar botones según ubicación
+  document.getElementById('entrada').disabled = !esValida;
+  document.getElementById('salida').disabled = !esValida;
+});
+
+// Evento para verificación manual
+document.getElementById('btn-verificar-ubicacion').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-verificar-ubicacion');
+  btn.disabled = true;
+  btn.textContent = '🔄 Verificando...';
+  
+  try {
+    const esValida = await verificarGeolocalizacion();
+    document.getElementById('entrada').disabled = !esValida;
+    document.getElementById('salida').disabled = !esValida;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 Verificar ubicación manualmente';
+  }
+});
+
     }
 
     async function obtenerUltimoTipo(pin) {
@@ -379,6 +447,88 @@
       }
     }
 
+// 🌍 Función para calcular distancia entre dos coordenadas (Fórmula de Haversine)
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Radio de la Tierra en metros
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distancia en metros
+}
+
+// 📍 Función para verificar geolocalización
+async function verificarGeolocalizacion() {
+  return new Promise(async (resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject('❌ Tu navegador no soporta geolocalización');
+      return;
+    }
+
+    try {
+      // Obtener coordenadas del usuario
+      const position = await new Promise((res, rej) => {
+        navigator.geolocation.getCurrentPosition(res, rej, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+
+      // Obtener datos del PIN de acceso (debe incluir lat, lon y radio en Firestore)
+      if (!pinFromUrl) {
+        reject('❌ No se pudo identificar la obra');
+        return;
+      }
+
+      const pinDoc = await db.collection('pines_acceso').doc(pinFromUrl).get();
+      if (!pinDoc.exists) {
+        reject('❌ PIN de acceso no válido');
+        return;
+      }
+
+      const pinData = pinDoc.data();
+      const obraLat = pinData.latitud;
+      const obraLon = pinData.longitud;
+      const radioPermitido = pinData.radio_metros || 100; // Default: 100 metros
+      const nombreObra = pinData.comentario || 'Obra sin nombre';
+
+      // Actualizar UI con nombre de la obra
+      document.getElementById('obra-nombre').textContent = nombreObra;
+
+      if (!obraLat || !obraLon) {
+        document.getElementById('ubicacion-mensaje').textContent = '⚠️ Coordenadas no configuradas';
+        document.getElementById('ubicacion-mensaje').className = 'error';
+        resolve(false);
+        return;
+      }
+
+      // Calcular distancia
+      const distancia = calcularDistancia(latitude, longitude, obraLat, obraLon);
+
+      if (distancia <= radioPermitido) {
+        document.getElementById('ubicacion-mensaje').textContent = `✅ Dentro del radio permitido (${Math.round(distancia)}m)`;
+        document.getElementById('ubicacion-mensaje').className = 'verificado';
+        resolve(true);
+      } else {
+        document.getElementById('ubicacion-mensaje').textContent = `❌ Fuera de rango (${Math.round(distancia)}m > ${radioPermitido}m)`;
+        document.getElementById('ubicacion-mensaje').className = 'error';
+        resolve(false);
+      }
+    } catch (error) {
+      console.error('Error en geolocalización:', error);
+      document.getElementById('ubicacion-mensaje').textContent = '❌ Error al obtener ubicación';
+      document.getElementById('ubicacion-mensaje').className = 'error';
+      reject(error.message || 'Error desconocido');
+    }
+  });
+}
+
     async function registrar(tipo) {
       const pinInput = document.getElementById('pin');
       const pin = pinInput.value.trim();
@@ -387,6 +537,18 @@
         mostrarMensaje('⚠️ PIN no válido', 'error');
         return;
       }
+
+// 🔒 Validar geolocalización antes de permitir registro
+try {
+  const ubicacionValida = await verificarGeolocalizacion();
+  if (!ubicacionValida) {
+    mostrarMensaje('🚫 No puedes registrar desde esta ubicación. Acércate a la obra.', 'error');
+    return;
+  }
+} catch (err) {
+  mostrarMensaje('🚫 Error de ubicación: ' + err, 'error');
+  return;
+}
 
       try {
         const estado = getEstadoDispositivo();
